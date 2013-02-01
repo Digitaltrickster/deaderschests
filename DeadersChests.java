@@ -105,6 +105,9 @@ public class DeadersChests {
 					player.addChatMessage("No chests available, inventory dropped!");
 				}
 			}
+			else {
+				player.addChatMessage("Chest would be in the void, items dropped!");
+			}
 		}
 	}
 	
