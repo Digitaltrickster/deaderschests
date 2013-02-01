@@ -73,17 +73,23 @@ public class DeadersChests {
 			int invsize = playerinv.mainInventory.length - Collections.frequency(Arrays.asList(playerinv.mainInventory), null);
 			invsize += playerinv.armorInventory.length - Collections.frequency(Arrays.asList(playerinv.armorInventory), null);
 			IInventory deaderschest = null;
+			TileEntityChest inv1 = null;
+			TileEntityChest inv2 = null;
 			
 			if (!(player.posY < 1.0D || player.posY > world.getHeight())){
-				TileEntityChest inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
-				
-				if (invsize >= 27) {
-					TileEntityChest inv2 = placeChest(playerinv,world, (int)player.posX+1, (int)player.posY, (int)player.posZ);
-					deaderschest = new InventoryLargeChest("Large Chest", inv1, inv2);
+				inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
+
+				if (inv1 != null && invsize >= 27) {
+					inv2 = placeChest(playerinv,world, (int)player.posX+1, (int)player.posY, (int)player.posZ);
+					if (inv2 == null) {
+						player.addChatMessage("Only one chest available!  The rest will be dropped!");
+					}
+					else {
+						deaderschest = new InventoryLargeChest("Large Chest", inv1, inv2);
+					}
 				}
-				else {
-					//print error about second chest
-					player.addChatMessage("Only one chest available!  The rest will be dropped!");
+
+				if (deaderschest == null && inv1 != null){
 					deaderschest = inv1;
 				}
 				
