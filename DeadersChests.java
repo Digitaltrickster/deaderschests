@@ -55,11 +55,13 @@ import cpw.mods.fml.common.network.NetworkMod;
 public class DeadersChests {
 	@Instance("DeadersChests")
 	public static DeadersChests instance;
+	
 	@Init
 	public void load(FMLInitializationEvent event)
 	{
 		MinecraftForge.EVENT_BUS.register(instance);
 	}
+	
 	@ForgeSubscribe
 	public void onDeath(LivingDeathEvent event)
 	{
@@ -71,37 +73,72 @@ public class DeadersChests {
 			int invsize = playerinv.mainInventory.length - Collections.frequency(Arrays.asList(playerinv.mainInventory), null);
 			invsize += playerinv.armorInventory.length - Collections.frequency(Arrays.asList(playerinv.armorInventory), null);
 			IInventory deaderschest = null;
-			if (playerinv.hasItem(Block.chest.blockID)){
-				playerinv.consumeInventoryItem(Block.chest.blockID);
-				world.setBlock((int)player.posX, (int)player.posY, (int)player.posZ, Block.chest.blockID);
-				TileEntityChest inv1 = (TileEntityChest)world.getBlockTileEntity((int)player.posX, (int)player.posY, (int)player.posZ);
-				if (invsize >= 27 && playerinv.hasItem(Block.chest.blockID)) {
-					playerinv.consumeInventoryItem(Block.chest.blockID);
-					world.setBlock((int)player.posX+1, (int)player.posY, (int)player.posZ, Block.chest.blockID);
-					TileEntityChest inv2 = (TileEntityChest)world.getBlockTileEntity((int)player.posX+1, (int)player.posY, (int)player.posZ);
+			
+			if (!(player.posY < 1.0D || player.posY > world.getHeight())){
+				TileEntityChest inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
+				
+				if (invsize >= 27) {
+					TileEntityChest inv2 = placeChest(playerinv,world, (int)player.posX+1, (int)player.posY, (int)player.posZ);
 					deaderschest = new InventoryLargeChest("Large Chest", inv1, inv2);
 				}
 				else {
+					//print error about second chest
+					player.addChatMessage("Only one chest available!  The rest will be dropped!");
 					deaderschest = inv1;
 				}
-
-				int invcounter = 0;
-			
-				for(int i = 0;i<playerinv.mainInventory.length;++i) {
-					if (playerinv.mainInventory[i] != null) {
-						deaderschest.setInventorySlotContents(invcounter, playerinv.mainInventory[i]);
-						invcounter++;
+				
+				if(deaderschest != null) {
+					String message = fillChest(deaderschest, playerinv, invsize);
+					if (message != null) {
+						player.addChatMessage(message);
 					}
+					player.addChatMessage("Chest filled!");
 				}
-			
-				for(int i = 0;i < playerinv.armorInventory.length;++i) {
-					if (playerinv.armorInventory[i] != null) {
-						deaderschest.setInventorySlotContents(invcounter, playerinv.armorInventory[i]);
-						invcounter++;
-					}
+				else {
+					//print error about no chests
+					player.addChatMessage("No chests available, inventory dropped!");
 				}
-				playerinv.clearInventory(-1, -1);
 			}
 		}
+	}
+	
+	public boolean canPlace() {
+		boolean retval = true;
+		
+		return retval;
+	}
+	
+	private TileEntityChest placeChest(InventoryPlayer inv, WorldServer w, int posX, int posY, int posZ) {
+		TileEntityChest retval = null;
+		if (inv.hasItem(Block.chest.blockID) && canPlace()) {
+			inv.consumeInventoryItem(Block.chest.blockID);
+			w.setBlock(posX, posY, posZ, Block.chest.blockID);
+			retval = (TileEntityChest)w.getBlockTileEntity(posX, posY, posZ);
+		}
+		return retval;
+	}
+	
+	private String fillChest(IInventory chest, InventoryPlayer inv, int isize) {
+		String retval = null;
+		int invcounter = 0;
+		if (isize > chest.getSizeInventory()) {
+			retval = "Inventory larger than max chest size, some items dropped.";
+		}
+		for(int i = 0;i<inv.mainInventory.length;++i) {
+			if (inv.mainInventory[i] != null && invcounter < chest.getSizeInventory()) {
+				chest.setInventorySlotContents(invcounter, inv.mainInventory[i]);
+				invcounter++;
+				inv.mainInventory[i] = null;
+			}
+		}
+	
+		for(int i = 0;i < inv.armorInventory.length;++i) {
+			if (inv.armorInventory[i] != null && invcounter < chest.getSizeInventory()) {
+				chest.setInventorySlotContents(invcounter, inv.armorInventory[i]);
+				invcounter++;
+				inv.armorInventory[i] = null;
+			}
+		}
+		return retval;
 	}
 }
