@@ -1,5 +1,7 @@
 package deaderschests;
-
+/*
+ * Released under Creative Commons Attribution, Non-commercial, Share alike license.  No permission is required to include in mod packs.
+ */
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -48,7 +50,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.common.network.NetworkMod;
 
 @Mod(modid = "DeadersChests", name="DeadersChests", version = "1.0")
-//@NetworkMod(clientSideRequired = true, serverSideRequired = true)
+
 
 public class DeadersChests {
 	@Instance("DeadersChests")
