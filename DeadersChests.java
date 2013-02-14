@@ -83,7 +83,7 @@ public class DeadersChests {
 				inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
 
 				if (inv1 != null && invsize >= 27) {
-					int[] secondCoords = findOpenAdj(world,(int)player.posX+1, (int)player.posY, (int)player.posZ);
+					int[] secondCoords = findOpenAdj(world,(int)player.posX, (int)player.posY, (int)player.posZ);
 					if (secondCoords != null) {
 						inv2 = placeChest(playerinv,world,secondCoords[0],secondCoords[1],secondCoords[2]);
 						if (inv2 == null) {
@@ -122,27 +122,43 @@ public class DeadersChests {
 	
 	public int[] findOpenAdj(WorldServer w,int posx,int posy,int posz) {
 		int[] retval = null;
-		if (canReplace(w,posx,posy,posz) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
-			retval = new int[]{posx,posy,posz};
-		}
-		else if (canReplace(w,posx+1,posy,posz) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+		int[] orig = {posx, posy, posz};
+		if (canReplace(w,posx+1,posy,posz) && noAdjChest(posx+1,posy,posz, orig, w)) {
 			retval = new int[]{posx+1,posy,posz};
 		}
-		else if (canReplace(w,posx-1,posy,posz) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+		else if (canReplace(w,posx-1,posy,posz) && noAdjChest(posx-1, posy, posz, orig, w)) {
 			retval = new int[]{posx-1,posy,posz};
 		}
-		else if (canReplace(w,posx,posy,posz+1) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+		else if (canReplace(w,posx,posy,posz+1) && noAdjChest(posx, posy, posz+1,orig,w)) {
 			retval = new int[]{posx,posy,posz+1};
 		}
-		else if (canReplace(w,posx,posy,posz-1) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+		else if (canReplace(w,posx,posy,posz-1) && noAdjChest(posx, posy, posz-1,orig,w)) {
 			retval = new int[]{posx,posy,posz-1};
 		}
 		return retval;
 	}
 	
-	public boolean noAdjChest(TileEntity adjblock) {
+	public boolean noAdjChest(int x, int y, int z, int[] orig, WorldServer w) {
 		boolean retval = true;
-		//adjblock
+		if (w.getBlockId(x-1, y, z) == Block.chest.blockID && x-1 != orig[0])
+        {
+            retval = false;
+        }
+
+		if (w.getBlockId(x+1, y, z) == Block.chest.blockID && x+1 != orig[0])
+        {
+            retval = false;
+        }
+
+		if (w.getBlockId(x, y, z-1) == Block.chest.blockID && z-1 != orig[2])
+        {
+            retval = false;
+        }
+
+		if (w.getBlockId(x, y, z+1) == Block.chest.blockID && z+1 != orig[2])
+        {
+            retval = false;
+        }
 		return retval;
 	}
 	
