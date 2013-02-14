@@ -22,6 +22,7 @@ import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.inventory.InventoryLargeChest;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.WorldServer;
@@ -51,8 +52,10 @@ import cpw.mods.fml.common.network.NetworkMod;
 
 @Mod(modid = "DeadersChests", name="DeadersChests", version = "1.0")
 
-
 public class DeadersChests {
+	
+	public static Material[] replaceableBlocks = new Material[]{Material.air,Material.water,Material.web,Material.fire,Material.lava, Material.leaves,Material.vine};
+	
 	@Instance("DeadersChests")
 	public static DeadersChests instance;
 	
@@ -80,12 +83,18 @@ public class DeadersChests {
 				inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
 
 				if (inv1 != null && invsize >= 27) {
-					inv2 = placeChest(playerinv,world, (int)player.posX+1, (int)player.posY, (int)player.posZ);
-					if (inv2 == null) {
-						player.addChatMessage("Only one chest available!  The rest will be dropped!");
+					int[] secondCoords = findOpenAdj(world,(int)player.posX+1, (int)player.posY, (int)player.posZ);
+					if (secondCoords != null) {
+						inv2 = placeChest(playerinv,world,secondCoords[0],secondCoords[1],secondCoords[2]);
+						if (inv2 == null) {
+							player.addChatMessage("Only one chest available!  The rest will be dropped!");
+						}
+						else {
+							deaderschest = new InventoryLargeChest("Large Chest", inv1, inv2);
+						}
 					}
 					else {
-						deaderschest = new InventoryLargeChest("Large Chest", inv1, inv2);
+						player.addChatMessage("No free adjacent space for second chest!");
 					}
 				}
 
@@ -111,15 +120,43 @@ public class DeadersChests {
 		}
 	}
 	
-	public boolean canPlace() {
+	public int[] findOpenAdj(WorldServer w,int posx,int posy,int posz) {
+		int[] retval = null;
+		if (canReplace(w,posx,posy,posz) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+			retval = new int[]{posx,posy,posz};
+		}
+		else if (canReplace(w,posx+1,posy,posz) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+			retval = new int[]{posx+1,posy,posz};
+		}
+		else if (canReplace(w,posx-1,posy,posz) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+			retval = new int[]{posx-1,posy,posz};
+		}
+		else if (canReplace(w,posx,posy,posz+1) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+			retval = new int[]{posx,posy,posz+1};
+		}
+		else if (canReplace(w,posx,posy,posz-1) && noAdjChest(w.getBlockTileEntity(posx, posy, posz))) {
+			retval = new int[]{posx,posy,posz-1};
+		}
+		return retval;
+	}
+	
+	public boolean noAdjChest(TileEntity adjblock) {
 		boolean retval = true;
-		
+		//adjblock
+		return retval;
+	}
+	
+	public boolean canReplace(WorldServer w,int posx, int posy, int posz) {
+		boolean retval = false;
+		if (Collections.frequency(Arrays.asList(replaceableBlocks), w.getBlockMaterial(posx, posy, posz)) > 0){
+			retval = true;
+		}
 		return retval;
 	}
 	
 	private TileEntityChest placeChest(InventoryPlayer inv, WorldServer w, int posX, int posY, int posZ) {
 		TileEntityChest retval = null;
-		if (inv.hasItem(Block.chest.blockID) && canPlace()) {
+		if (inv.hasItem(Block.chest.blockID) && canReplace(w,posX,posY,posZ)) {
 			inv.consumeInventoryItem(Block.chest.blockID);
 			w.setBlock(posX, posY, posZ, Block.chest.blockID);
 			retval = (TileEntityChest)w.getBlockTileEntity(posX, posY, posZ);
