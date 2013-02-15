@@ -83,7 +83,7 @@ public class DeadersChests {
 				inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
 
 				if (inv1 != null && invsize >= 27) {
-					int[] secondCoords = {(int)player.posX+1,(int)player.posY,(int)player.posZ};//findOpenAdj(world,(int)player.posX, (int)player.posY, (int)player.posZ);
+					int[] secondCoords = findOpenAdj(world,(int)player.posX, (int)player.posY, (int)player.posZ);
 					if (secondCoords != null) {
 						inv2 = placeChest(playerinv,world,secondCoords[0],secondCoords[1],secondCoords[2]);
 						if (inv2 == null) {
