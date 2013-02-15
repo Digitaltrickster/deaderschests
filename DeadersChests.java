@@ -83,7 +83,7 @@ public class DeadersChests {
 				inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
 
 				if (inv1 != null && invsize >= 27) {
-					int[] secondCoords = findOpenAdj(world,(int)player.posX, (int)player.posY, (int)player.posZ);
+					int[] secondCoords = {(int)player.posX+1,(int)player.posY,(int)player.posZ};//findOpenAdj(world,(int)player.posX, (int)player.posY, (int)player.posZ);
 					if (secondCoords != null) {
 						inv2 = placeChest(playerinv,world,secondCoords[0],secondCoords[1],secondCoords[2]);
 						if (inv2 == null) {
@@ -135,6 +135,7 @@ public class DeadersChests {
 		else if (canReplace(w,posx,posy,posz-1) && noAdjChest(posx, posy, posz-1,orig,w)) {
 			retval = new int[]{posx,posy,posz-1};
 		}
+		
 		return retval;
 	}
 	
@@ -163,7 +164,7 @@ public class DeadersChests {
 	}
 	
 	public boolean canReplace(WorldServer w,int posx, int posy, int posz) {
-		boolean retval = true;
+		boolean retval = false;
 		
 		if (Collections.frequency(Arrays.asList(replaceableBlocks), w.getBlockMaterial(posx, posy, posz)) > 0){
 			retval = true;
