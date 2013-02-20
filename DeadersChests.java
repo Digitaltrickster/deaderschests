@@ -97,9 +97,15 @@ public class DeadersChests {
 						player.addChatMessage("No free adjacent space for second chest!");
 					}
 				}
+				else {
+					player.addChatMessage("No chests available, inventory dropped!");
+				}
 
 				if (deaderschest == null && inv1 != null){
 					deaderschest = inv1;
+				}
+				else {
+					player.addChatMessage("Chest init failed!");
 				}
 				
 				if(deaderschest != null) {
@@ -108,10 +114,6 @@ public class DeadersChests {
 						player.addChatMessage(message);
 					}
 					player.addChatMessage("Chest filled!");
-				}
-				else {
-					//print error about no chests
-					player.addChatMessage("No chests available, inventory dropped!");
 				}
 			}
 			else {
