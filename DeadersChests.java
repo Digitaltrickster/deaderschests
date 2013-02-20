@@ -68,7 +68,7 @@ public class DeadersChests {
 	@ForgeSubscribe
 	public void onDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving instanceof EntityPlayer && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER && FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(((EntityPlayer)event.entityLiving).username) != null)
+		if(event.entityLiving instanceof EntityPlayer)// && FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(((EntityPlayer)event.entityLiving).username) != null)//&& FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER
 		{
 			EntityPlayer player = (EntityPlayer)event.entityLiving;
 			InventoryPlayer playerinv = player.inventory;
@@ -79,7 +79,7 @@ public class DeadersChests {
 			TileEntityChest inv1 = null;
 			TileEntityChest inv2 = null;
 			
-			if (!(player.posY < 1.0D || player.posY > world.getHeight())){
+			if (player.posY >= 1.0D && player.posY <= world.getHeight()){
 				inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
 
 				if (inv1 != null && invsize >= 27) {
@@ -164,7 +164,7 @@ public class DeadersChests {
 	}
 	
 	public boolean canReplace(WorldServer w,int posx, int posy, int posz) {
-		boolean retval = false;
+		boolean retval = true;
 		
 		if (Collections.frequency(Arrays.asList(replaceableBlocks), w.getBlockMaterial(posx, posy, posz)) > 0){
 			retval = true;
@@ -174,7 +174,7 @@ public class DeadersChests {
 	
 	private TileEntityChest placeChest(InventoryPlayer inv, WorldServer w, int posX, int posY, int posZ) {
 		TileEntityChest retval = null;
-		if ((inv.hasItem(Block.chest.blockID) || inv.getCurrentItem().itemID == Block.chest.blockID) && canReplace(w,posX,posY,posZ)) {
+		if (inv.hasItem(Block.chest.blockID) && canReplace(w,posX,posY,posZ)) {
 			inv.consumeInventoryItem(Block.chest.blockID);
 			w.setBlock(posX, posY, posZ, Block.chest.blockID);
 			retval = (TileEntityChest)w.getBlockTileEntity(posX, posY, posZ);
