@@ -174,7 +174,7 @@ public class DeadersChests {
 	
 	private TileEntityChest placeChest(InventoryPlayer inv, WorldServer w, int posX, int posY, int posZ) {
 		TileEntityChest retval = null;
-		if (inv.hasItem(Block.chest.blockID) && canReplace(w,posX,posY,posZ)) {
+		if ((inv.hasItem(Block.chest.blockID) || inv.getCurrentItem().itemID == Block.chest.blockID) && canReplace(w,posX,posY,posZ)) {
 			inv.consumeInventoryItem(Block.chest.blockID);
 			w.setBlock(posX, posY, posZ, Block.chest.blockID);
 			retval = (TileEntityChest)w.getBlockTileEntity(posX, posY, posZ);
