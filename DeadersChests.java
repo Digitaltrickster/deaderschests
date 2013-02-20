@@ -54,7 +54,7 @@ import cpw.mods.fml.common.network.NetworkMod;
 
 public class DeadersChests {
 	
-	public static Material[] replaceableBlocks = new Material[]{Material.air,Material.water,Material.web,Material.fire,Material.lava, Material.leaves,Material.vine};
+	public static Material[] replaceableBlocks = new Material[]{Material.air,Material.water,Material.web,Material.fire,Material.lava, Material.leaves,Material.vine,Material.ground};
 	
 	@Instance("DeadersChests")
 	public static DeadersChests instance;
