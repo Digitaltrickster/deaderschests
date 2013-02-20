@@ -164,7 +164,7 @@ public class DeadersChests {
 	}
 	
 	public boolean canReplace(WorldServer w,int posx, int posy, int posz) {
-		boolean retval = true;
+		boolean retval = false;
 		
 		if (Collections.frequency(Arrays.asList(replaceableBlocks), w.getBlockMaterial(posx, posy, posz)) > 0){
 			retval = true;
