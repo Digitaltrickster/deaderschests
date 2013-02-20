@@ -54,7 +54,7 @@ import cpw.mods.fml.common.network.NetworkMod;
 
 public class DeadersChests {
 	
-	public static Material[] replaceableBlocks = new Material[]{Material.air,Material.water,Material.web,Material.fire,Material.lava, Material.leaves,Material.vine,Material.ground};
+	public static Material[] replaceableBlocks = new Material[]{Material.air,Material.water,Material.web,Material.fire,Material.lava, Material.leaves,Material.vine};
 	
 	@Instance("DeadersChests")
 	public static DeadersChests instance;
@@ -68,7 +68,7 @@ public class DeadersChests {
 	@ForgeSubscribe
 	public void onDeath(LivingDeathEvent event)
 	{
-		if(event.entityLiving instanceof EntityPlayer)// && FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(((EntityPlayer)event.entityLiving).username) != null)//&& FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER
+		if(event.entityLiving instanceof EntityPlayer && FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().getPlayerForUsername(((EntityPlayer)event.entityLiving).username) != null && FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
 		{
 			EntityPlayer player = (EntityPlayer)event.entityLiving;
 			InventoryPlayer playerinv = player.inventory;
@@ -80,10 +80,19 @@ public class DeadersChests {
 			TileEntityChest inv2 = null;
 			
 			if (player.posY >= 1.0D && player.posY <= world.getHeight()){
-				inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ);
-
+				for(int i = 0; i <= 3 && inv1 == null;i++) {
+					if (canReplace(world,(int)player.posX+i, (int)player.posY, (int)player.posZ)) {
+						inv1 = placeChest(playerinv,world, (int)player.posX+i, (int)player.posY, (int)player.posZ);
+					}
+					else if (canReplace(world,(int)player.posX, (int)player.posY+i, (int)player.posZ)) {
+						inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY+i, (int)player.posZ);
+					}
+					else if (canReplace(world,(int)player.posX, (int)player.posY, (int)player.posZ+i)) {
+						inv1 = placeChest(playerinv,world, (int)player.posX, (int)player.posY, (int)player.posZ+i);
+					}
+				}
 				if (inv1 != null && invsize >= 27) {
-					int[] secondCoords = findOpenAdj(world,(int)player.posX, (int)player.posY, (int)player.posZ);
+					int[] secondCoords = findOpenAdj(world,inv1.xCoord, inv1.yCoord, inv1.zCoord);
 					if (secondCoords != null) {
 						inv2 = placeChest(playerinv,world,secondCoords[0],secondCoords[1],secondCoords[2]);
 						if (inv2 == null) {
@@ -104,7 +113,7 @@ public class DeadersChests {
 				if (deaderschest == null && inv1 != null){
 					deaderschest = inv1;
 				}
-				else {
+				else if (deaderschest == null && inv1 == null) {
 					player.addChatMessage("Chest init failed!");
 				}
 				
@@ -176,6 +185,7 @@ public class DeadersChests {
 	
 	private TileEntityChest placeChest(InventoryPlayer inv, WorldServer w, int posX, int posY, int posZ) {
 		TileEntityChest retval = null;
+
 		if (inv.hasItem(Block.chest.blockID) && canReplace(w,posX,posY,posZ)) {
 			inv.consumeInventoryItem(Block.chest.blockID);
 			w.setBlock(posX, posY, posZ, Block.chest.blockID);
